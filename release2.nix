@@ -5,7 +5,8 @@ let
 
   customHaskellPackages = pinnedPkgs.haskellPackages.override (old: {
     overrides = pinnedPkgs.lib.composeExtensions (old.overrides or (_: _: {})) (self: super: {
-      project1 = self.callPackage ./default.nix { };
+      # project1 = self.callPackage ./default.nix { };
+      project1 = self.callCabal2nix "project1" ./nix-haskell.cabal { };
       # addditional overrides go here
     });
   });

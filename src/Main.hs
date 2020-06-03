@@ -1,7 +1,10 @@
+import           Lib                            ( fn
+                                                , lg
+                                                )
 
 main :: IO ()
-main = print $ fn "welcome"
+main = do
+  print $ fn "welcome"
 
 
-fn :: String -> Int
-fn = length
+

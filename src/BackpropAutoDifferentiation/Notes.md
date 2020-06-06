@@ -84,3 +84,11 @@ Summary:
 4. use $\partial E / \partial w_{ij}^{(l)} = \delta_j^{(l)} z_i^{(l-1)}$ to calculate $\Delta w_{ij}^{(l)}$ in each layer
 5. for activation function $\tanh$, f'(a) = $\tanh'(a) = 1 - \tanh^{2}(a)$
 6. thus $w' = w - \gamma \nabla E(w)$
+
+Automatic Differentiation
+
+Reverse Mode
+
+$$\displaystyle   f(x) = \exp(\exp(x) + (\exp(x))^2) + \sin(\exp(x) + (\exp(x))^2)  $$
+
+Forward Mode

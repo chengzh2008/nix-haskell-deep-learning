@@ -94,18 +94,18 @@ g m c = cost m c xs ys
 zs = (0.1, 0.1) : map f zs
  where
   deriv (Dual _ x') = x'
-  f (c, m) = (c - gamma * cDeriv, m - gamma * mDeriv)
+  f (m, c) = (m - gamma * mDeriv, c - gamma * cDeriv)
    where
-    cDeriv = deriv $ g (constD m) $ idD c
-    mDeriv = deriv $ flip g (constD c) $ idD m
+    cDeriv = deriv $ g (constD m) $ (idD c)
+    mDeriv = deriv $ g (idD m) $ (constD c)
 -- >>> :t zs
 -- zs :: [(Double, Double)]
 --
 
 -- >>> take 2 $ drop 1000 $ zs
--- [(0.9998665320141327,2.0000191714150106),(0.999867653022265,2.0000190103927853)]
+-- [(2.0000191714150106,0.9998665320141327),(2.0000190103927853,0.999867653022265)]
 --
--- >>> take 2 $ drop 1000 $ map (\(c, m) -> cost m c xs ys) zs
+-- >>> take 2 $ drop 1000 $ map (\(m, c) -> cost m c xs ys) zs
 -- [1.9088215184565296e-9,1.876891490619424e-9]
 --
 

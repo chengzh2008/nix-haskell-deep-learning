@@ -92,3 +92,15 @@ Reverse Mode
 $$\displaystyle   f(x) = \exp(\exp(x) + (\exp(x))^2) + \sin(\exp(x) + (\exp(x))^2)  $$
 
 Forward Mode
+
+some examples of chain rule
+
+$$\displaystyle   \begin{aligned}  (x + \epsilon x') + (y + \epsilon y') &= ((x + y) + \epsilon (x' + y')) \\  (x + \epsilon x')(y + \epsilon y') &= xy + \epsilon (xy' + x'y) \\  \log (x + \epsilon x') &=  \log x (1 + \epsilon \frac {x'}{x}) =  \log x + \epsilon\frac{x'}{x} \\  \sqrt{(x + \epsilon x')} &=  \sqrt{x(1 + \epsilon\frac{x'}{x})} =  \sqrt{x}(1 + \epsilon\frac{1}{2}\frac{x'}{x}) =  \sqrt{x} + \epsilon\frac{1}{2}\frac{x'}{\sqrt{x}} \\  \ldots &= \ldots  \end{aligned}  $$
+
+using the chain rule
+
+$$\displaystyle   \frac{\mathrm{d}}{\mathrm{d} x}\log(\sqrt x) =  \frac{1}{\sqrt x}\frac{1}{2}x^{-1/2} =  \frac{1}{2x}  $$
+
+we have
+
+$$\displaystyle   \begin{aligned}  \log(\sqrt {x + \epsilon x'}) &= \log (\sqrt{x} + \epsilon\frac{1}{2}\frac{x'}{\sqrt{x}}) \\                                &= \log (\sqrt{x}) + \epsilon\frac{\frac{1}{2}\frac{x'}{\sqrt{x}}}{\sqrt{x}} \\                                &= \log (\sqrt{x}) + \epsilon x'\frac{1}{2x}  \end{aligned}  $$

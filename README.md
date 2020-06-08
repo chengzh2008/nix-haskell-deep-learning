@@ -1,6 +1,6 @@
-# my learning journal with nix and Haskell
+# my learning journal with nix, Haskell and deep learning
 
-## tutorial link: https://cah6.github.io/technology/nix-haskell-1/
+## project setup tutorial link: https://cah6.github.io/technology/nix-haskell-1/
 
 ## dev and build with nix
 

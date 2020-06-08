@@ -67,33 +67,33 @@ run = do
 
 
 -- >>> run
--- (12547,6)
+-- (53113,7)
 -- --------------------------------------------------------------------------------------
 -- |                                                                                    |
 -- |                                                                                    |
 -- |                                                                                    |
--- |                                                           2110237255203 13         |
--- |                                                       47174253253253253 75         |
--- |                                                   109229253253244237183  8         |
--- |                                               6117228253253190 54 13               |
--- |                                            7141253253244183 17                     |
--- |                                      7 65129253253253160                           |
--- |                                   7140253226253253187 19                           |
--- |                                 120253253253253186 20                              |
--- |                               49227253253253186 20                                 |
--- |                            15228253253242186 20             31                     |
--- |                            19253253242 88 59       52165192222192192140  5         |
--- |                           120253253216       17106240253253253253253253 18         |
--- |                          5181253253113 58 80215253253253253186202253253 18         |
--- |                          8213253238 79241201253253253148 43  8 94253253 18         |
--- |                           143253253239253253253253 89  8      199253253 18         |
--- |                           143253253253253253231124  8      126249253112  3         |
--- |                            28253253253253253197       32145249253253 24            |
--- |                             1 96253253253253249236236241253253253209 14            |
--- |                                1 97253253253253253253253253253164  7               |
--- |                                          253253253253217129 26  4                  |
 -- |                                                                                    |
 -- |                                                                                    |
+-- |                                                                                    |
+-- |                                                  5145255254249191191 46            |
+-- |                                         5 20 36141253253253253253253171            |
+-- |                                       128217253253212220253253253243 56            |
+-- |                                     88251253253176 15 24117252253173               |
+-- |                                  38224253253219 14       40250253 88               |
+-- |                                2148253253193 68       40172253177 10               |
+-- |                              137253253181109         153253253104                  |
+-- |                            34230253253 55          55236253175                     |
+-- |                            54253253178  4       10205253253 49                     |
+-- |                            38234226 47          88253253174  2                     |
+-- |                              119104          13200253224 43                        |
+-- |                                              86253253115                           |
+-- |                                         4 11201253253 41                           |
+-- |                                        90197253253118  1                           |
+-- |                                     20245253253246 52                              |
+-- |                                    137253253246103                                 |
+-- |                                  71247253253127                                    |
+-- |                                  89253251196 20                                    |
+-- |                                  89253 82 68                                       |
 -- |                                                                                    |
 -- --------------------------------------------------------------------------------------
 --
@@ -116,13 +116,13 @@ type Weights = [[Float]] -- the ith row holds the weights of the inputs to the i
 type Layer = (Bias, Weights)
 type Layers = [Layer] -- the ith in the list represents the ith layer
 
-newBrain :: [Int] -> IO Layers
-newBrain szs@(_ : ts) =
+getLayers :: [Int] -> IO Layers
+getLayers szs@(_ : ts) =
   zip (flip replicate 1 <$> ts)
     <$> zipWithM (\m n -> replicateM n $ replicateM m $ gauss 0.01) szs ts
 
 -- "3 inputs, a hidden layer of 4 neurons, and 2 output neurons:"
--- >>>  newBrain [3, 4, 2]
+-- >>>  getLayers [3, 4, 2]
 -- [([1.0,1.0,1.0,1.0],[[9.907935e-3,1.7610624e-2,8.4903855e-3],[-8.020629e-3,-9.393888e-3,-7.451966e-3],[-4.5380415e-3,9.849725e-3,-2.0997256e-2],[-8.754601e-3,-2.4237656e-3,1.24545e-2]]),([1.0,1.0],[[-2.0274768e-2,-2.8813325e-3,-3.5669326e-3,-7.5384453e-3],[-1.9127443e-2,5.4793264e-4,-1.0574712e-2,-9.191597e-3]])]
 
 -- for each layer 
@@ -133,8 +133,8 @@ zLayer as (bs, ws) = zipWith (+) bs $ sum . zipWith (*) as <$> ws
 feed :: Input -> Layers -> Output
 feed as layers = foldl' (((relu <$>) .) . zLayer) as layers
 
--- >>> newBrain [3, 4, 2] >>= print . feed [0.1, 0.2, 0.3]
--- [1.0230666,1.009849]
+-- >>> getLayers [3, 4, 5] >>= print . feed [0.1, 0.2, 0.3]
+-- [1.0123188,0.9981441,1.0040364,0.99591523,1.0138805]
 --
 
 relu' x | x < 0     = 0
@@ -169,20 +169,20 @@ deltas xv yv layers =
     (relu' <$> zv)
 
 -- online learning
-eta = 0.002
-descend av dv = zipWith (-) av ((eta *) <$> dv)
+-- eta = 0.002
 -- >>> :t descend
 -- descend :: [Double] -> [Double] -> [Double]
 --
 
-learn :: Input -> Output -> Layers -> Layers
-learn xv yv layers =
+learn :: Float -> Input -> Output -> Layers -> Layers
+learn eta xv yv layers =
   let (avs, dvs) = deltas xv yv layers
   in  zip (zipWith descend (fst <$> layers) dvs) $ zipWith3
         (\wvs av dv -> zipWith (\wv d -> descend wv ((d *) <$> av)) wvs dv)
         (snd <$> layers)
         avs
         dvs
+  where descend av dv = zipWith (-) av ((eta *) <$> dv)
 
 getImage s n =
   fromIntegral . BS.index s . (n * dimension + 16 +) <$> [0 .. dimension - 1]
@@ -208,19 +208,32 @@ test = do
     [trainInputgz, trainLabelgz, testInputgz, testLabelsgz]
   -- 30 hidden neurons, 10 output 
 
-  layers <- newBrain [784, 30, 10]
+  -- initial layers of bias and weights
+  layers <- getLayers [784, 30, 10]
+  -- randomly choose a number less than 10000
   n      <- (`mod` 10000) <$> randomIO
+  -- show the image of the number from test image
   renderNumber testI n
   -- putStr . unlines $ take 28 $ take 28 <$> iterate
   --   (drop 28)
   --   (render <$> getImage testI n)
-  let example = getX testI n
-      bs = scanl (foldl' (\b n -> learn (getX trainI n) (getY trainL n) b))
-                 layers
-                 [[0 .. 999], [1000 .. 2999], [3000 .. 5999], [6000 .. 9999]]
-      smart = last bs
-      cute d score = show d ++ ": " ++ replicate (round $ 70 * min 1 score) '+'
-      bestOf = fst . maximumBy (comparing snd) . zip [0 ..]
+
+  let
+    example = getX testI n
+    -- learning rate
+    eta     = 0.002
+    bs      = scanl
+      (foldl' (\b n -> learn eta (getX trainI n) (getY trainL n) b))
+      layers
+      [ [0 .. 999]
+      , [1000 .. 2999]
+      , [3000 .. 5999]
+      , [6000 .. 9999]
+      , [10000 .. 20000]
+      ]
+    smart = last bs
+    cute d score = show d ++ ": " ++ replicate (round $ 70 * min 1 score) '+'
+    bestOf = fst . maximumBy (comparing snd) . zip [0 ..]
 
   forM_ bs $ putStrLn . unlines . zipWith cute [0 .. 9] . feed example
 

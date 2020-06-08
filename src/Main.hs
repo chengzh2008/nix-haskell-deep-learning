@@ -7,6 +7,7 @@ import           NeuralNetworkFromScratch.NNFS
 main :: IO ()
 main = do
   print $ fn "welcome"
+  test
 
 
 
